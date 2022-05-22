@@ -3,6 +3,8 @@ import subprocess
 import serial
 import time
 import traceback
+from queue import Queue
+from threading import Thread
 
 
 start_page = '1'
@@ -181,6 +183,40 @@ pages = {
 }
 
 
+apps_to_page_mapping = {
+    'org.wezfurlong.wezterm.desktop': '1',
+    'librewolf.desktop': '1',
+    'org.kde.kate.desktop': '2',
+    'org.kde.dolphin.desktop': '2',
+    'com.obsproject.Studio.desktop': '2',
+}
+
+
+#new thread to listen to gnome events and find when the active window changes
+#so that the keypad can change context based on the active window
+def monitor_active_app():
+    proc = subprocess.Popen(['dbus-monitor'], stdout=subprocess.PIPE)
+    while True:
+        line = proc.stdout.readline().decode('utf-8')
+        if "member=RunningApplicationsChanged" in line:
+            #print(line)
+            last4 = ["", "", "", ""]
+            while True:
+                line = proc.stdout.readline().decode('utf-8')
+                last4.append(line)
+                last4.pop(0)
+                if "active-on-seats" in line:
+                    app = last4[0].split('"')[1]
+                    q.put(app)
+                    break
+
+q = Queue()
+t = Thread(target=monitor_active_app)
+t.daemon = True
+t.start()
+
+
+
 
 
 ser = serial.Serial('/dev/rfcomm0', 9600)
@@ -235,11 +271,22 @@ def activate_page():
 
 send_init = True
 while True:
+    if not q.empty():
+        app = q.get()
+        new_page = apps_to_page_mapping.get(app)
+        print('APP', app, 'PAGE', new_page)
+        if new_page is not None and new_page != current_page:
+            current_page = new_page
+            activate_page()
     try:
         if send_init:
             pln("?")
             send_init = False
-        line = gln()
+        if ser.inWaiting() > 0:
+            line = gln()
+        else:
+            time.sleep(0.05)
+            continue
         if line == '@':
             pln("#,"+start_page)
 #             send_init = True
@@ -282,7 +329,7 @@ while True:
 # #             pln(line[1]+',FAD,2,RGB,0,255,0,0.5,RGB,0,0,0,2.2')
 # #             pln(line[1]+'RAN003RGB255000000101RGB0002550000.5RGB0000002552.2')
 # #            pln('A,HSV,0.9,0.9,0.9')
-    except serial.serialutil.SerialException as e:
+    except (serial.serialutil.SerialException, OSError) as e:
         #print(e)
         print(traceback.format_exc())
         #time.sleep(1)
