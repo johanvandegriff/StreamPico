@@ -9,7 +9,7 @@ from threading import Thread
 
 start_page = '1'
 current_page = start_page
-OBS_PASSWORD = '1234' #TODO
+OBS_PASSWORD = '1234' #TODO env var or config value
 SERIAL_INTERFACE = '/dev/rfcomm0'
 BAUD_RATE = 115200 #9600
 
@@ -25,6 +25,8 @@ pages = {
                     'lights off! (toggled)': 'RGB,128,0,0',
                     'lights on! (toggled)': 'RGB,255,255,255',
                 },
+                #TODO ability to shortcut:
+                #'action': '/home/user/nextcloud/bin/lights-toggle'
                 'action': {
                     'type': 'command',
                     'parameters': ['/home/user/nextcloud/bin/lights-toggle'],
@@ -55,7 +57,7 @@ pages = {
                     #'parameters': ['/home/user/nextcloud/bin/weznethack', 'number_pad'],
                 #},
             #},
-            'E': {
+            'E': { #TODO maybe use C as back instead of E
                 'colors': 'RGB,0,0,255',
                 'action': {
                     'type': 'set_page',
@@ -79,6 +81,11 @@ pages = {
             '0': {
                 'action': {
                     'type': 'command',
+                    #TODO a way to store values in the json config and reference them later, something like:
+                    #'vars': {'OBS_PASSWORD': '1234'}
+                    #'parameters': ['obs-cli', '--password', {'var': 'OBS_PASSWORD'}, 'scene', 'switch', 'cam+chat'],
+                    #TODO a way to pass the state (maybe previous output, maybe page and button number) into the command:
+                    #'parameters': ['my-command', {'state': 'LAST_OUTPUT'}],
                     'parameters': ['obs-cli', '--password', OBS_PASSWORD, 'scene', 'switch', 'cam+chat'],
                 },
             },
@@ -147,12 +154,6 @@ pages = {
                     #'type': 'command',
                     #'parameters': ['obs-cli', '--password', OBS_PASSWORD, 'scene', 'switch', '?'],
                 #},
-            #},
-            #'8': {
-                #'colors': 'RGB,0,0,0',
-            #},
-            #'9': {
-                #'colors': 'RGB,0,0,0',
             #},
             'A': {
                 'colors': 'RGB,0,0,0',
@@ -260,7 +261,7 @@ def activate_page():
             colors = data.get('colors')
             action = data.get('action')
             if type(colors) == list:
-                pln(key+','+colors[0]) #TODO
+                pln(key+','+colors[0]) #TODO cycle thru when pressed
             elif type(colors) == dict:
                 pln(key+','+colors[action.get('last_output')])
             elif colors is not None:
@@ -276,6 +277,8 @@ while True:
     if not q.empty():
         app = q.get()
         new_page = apps_to_page_mapping.get(app)
+        #TODO add an optional catchall page for apps not on any list
+        #TODO add an action to set/toggle if app focus jumps to page
         print('APP', app, 'PAGE', new_page)
         if new_page is not None and new_page != current_page:
             current_page = new_page
@@ -284,19 +287,19 @@ while True:
         if send_init:
             pln("?")
             send_init = False
+
         if ser.inWaiting() > 0:
             line = gln()
         else:
             time.sleep(0.05)
             continue
-        if line == '@':
+
+        if line[0] == '@':
             pln("#,"+start_page)
-#             send_init = True
-#         print('line[0]', line[0])
-        if line[0] == '?':
+        elif line[0] == '?':
             current_page = line.split(',')[1]
             activate_page()
-        if line[0] == '+':
+        elif line[0] == '+':
             key = line[1]
             if current_page in pages and key in pages[current_page]['keys']:
                 action = pages[current_page]['keys'][key].get('action')
@@ -312,28 +315,10 @@ while True:
                         activate_page() #TODO dont update the whole page
                     else:
                         raise Exception('unsupported action type ' + action['type'])
-#         if line == '+0':
-#             os.system("echo /home/user/nextcloud/bin/lights-toggle &")
-#         if line[0] == '+':
-# #             pln(line[1]+',RGB,255,255,255')
-#             pln(line[1]+',BLI,1,RGB,255,255,255,0.1')
-# #             pln(line[1]+'BLI001RGB2552552550.1') #without commas, everthing is 3 wide
-# #            pln('A,HSV,0.5,0,1')
-#         if line[0] == '-':
-# #             pln(line[1]+',RGB,255,0,255')
-# #             pln(line[1]+',BLI,3,RGB,255,0,0,1.1,RGB,0,255,0,0.5,RGB,0,0,255,2.2')
-#             if line[1] in ('A', 'B', 'E', 'F'):
-#                 pln(line[1]+',PUL,2,RGB,0,255,0,1.1,RGB,255,0,0,0.5')
-#             else:
-#                 pln(line[1]+',FAD,2,RGB,0,255,0,1.1,RGB,255,0,0,0.5')
-# #                 pln(line[1]+',PUL,2,RGB,255,0,0,1.1,RGB,0,255,0,0.5')
-# #             pln(line[1]+',FAD,3,RGB,255,0,0,1.1,RGB,0,255,0,0.5,RGB,0,0,255,2.2')
-# #             pln(line[1]+',FAD,2,RGB,0,255,0,0.5,RGB,0,0,0,2.2')
-# #             pln(line[1]+'RAN003RGB255000000101RGB0002550000.5RGB0000002552.2')
-# #            pln('A,HSV,0.9,0.9,0.9')
     except (serial.serialutil.SerialException, OSError) as e:
-        #print(e)
         print(traceback.format_exc())
-        #time.sleep(1)
         ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
         send_init = True
+
+
+
