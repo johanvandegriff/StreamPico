@@ -9,7 +9,9 @@ from threading import Thread
 
 start_page = '1'
 current_page = start_page
-OBS_PASSWORD='1234' #TODO
+OBS_PASSWORD = '1234' #TODO
+SERIAL_INTERFACE = '/dev/rfcomm0'
+BAUD_RATE = 115200 #9600
 
 pages = {
     '1': {
@@ -219,18 +221,18 @@ t.start()
 
 
 
-ser = serial.Serial('/dev/rfcomm0', 9600)
+ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
 
 """
 try:
-    ser = serial.Serial('/dev/rfcomm0', 9600)
+    ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
 except serial.serialutil.SerialException:
     output = subprocess.Popen(['sudo', 'rfcomm', 'bind', '0', '98:D3:31:FD:5D:34'], stdout=subprocess.PIPE ).communicate()[0]
     print('output:', output)
     #os.system('sudo rfcomm bind 0 98:D3:31:FD:5D:34')
     time.sleep(2) #minimum 0.2
     #time.sleep(0.5) #minimum 0.2
-    ser = serial.Serial('/dev/rfcomm0', 9600)
+    ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
 """
 #"""
 
@@ -333,5 +335,5 @@ while True:
         #print(e)
         print(traceback.format_exc())
         #time.sleep(1)
-        ser = serial.Serial('/dev/rfcomm0', 9600)
+        ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
         send_init = True
