@@ -13,6 +13,7 @@ OBS_PASSWORD='1234' #TODO
 
 pages = {
     '1': {
+        'apps': ['org.wezfurlong.wezterm.desktop', 'librewolf.desktop'],
 #         'color': 'RGB,255,0,0',
         'keys': {
             '0': {
@@ -70,6 +71,7 @@ pages = {
         'quit': 'E', #a special action that is managed on the device
     },
     '2': {
+        'apps': ['org.kde.kate.desktop', 'org.kde.dolphin.desktop', 'com.obsproject.Studio.desktop'],
         'color': 'RGB,255,0,255',
         'keys': {
             '0': {
@@ -182,14 +184,12 @@ pages = {
     },
 }
 
-
-apps_to_page_mapping = {
-    'org.wezfurlong.wezterm.desktop': '1',
-    'librewolf.desktop': '1',
-    'org.kde.kate.desktop': '2',
-    'org.kde.dolphin.desktop': '2',
-    'com.obsproject.Studio.desktop': '2',
-}
+apps_to_page_mapping = {}
+for page, v in pages.items():
+    apps = v.get('apps')
+    if apps is not None:
+        for app in apps:
+            apps_to_page_mapping[app] = page
 
 
 #new thread to listen to gnome events and find when the active window changes
