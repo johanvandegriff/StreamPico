@@ -47,16 +47,15 @@ proc = subprocess.Popen(['dbus-monitor'],stdout=subprocess.PIPE)
 while True:
     #if the right function calls are on 2 consecutive lines
     if 'member=RunningApplicationsChanged' in readln(proc) and 'member=GetRunningApplications' in readln(proc):
-        line = ''
-        lines = []
-        #search for the active window, recording all the string lines along the way
-        while not 'string "active-on-seats"' in line:
-            line = readln(proc)
+
+        #search for the active window string, recording the previous string which is the window name
+        last_line = None
+        while not 'string "active-on-seats"' in (line := readln(proc)):
             if 'string "' in line:
-                lines.append(line)
-        lines.pop() #get rid of "active-on-seats" since that's a string
-        if len(lines) > 0:
-            app = lines[-1].split('"')[1] #on the last line, the stuff between the quotes
+                last_line = line
+
+        if last_line is not None:
+            app = last_line.split('"')[1] #get the stuff between the quotes
             print(app) #we found the app!
 
 
