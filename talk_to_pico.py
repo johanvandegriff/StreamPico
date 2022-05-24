@@ -5,6 +5,7 @@ import time
 import traceback
 from queue import Queue
 from threading import Thread
+from gnome_wayland_monitor_active_app import monitor_active_app
 
 
 start_page = '1'
@@ -197,24 +198,8 @@ for page, v in pages.items():
 
 #new thread to listen to gnome events and find when the active window changes
 #so that the keypad can change context based on the active window
-def monitor_active_app():
-    proc = subprocess.Popen(['dbus-monitor'], stdout=subprocess.PIPE)
-    while True:
-        line = proc.stdout.readline().decode('utf-8')
-        if "member=RunningApplicationsChanged" in line:
-            #print(line)
-            last4 = ["", "", "", ""]
-            while True:
-                line = proc.stdout.readline().decode('utf-8')
-                last4.append(line)
-                last4.pop(0)
-                if "active-on-seats" in line:
-                    app = last4[0].split('"')[1]
-                    q.put(app)
-                    break
-
 q = Queue()
-t = Thread(target=monitor_active_app)
+t = Thread(target=monitor_active_app, args=[q])
 t.daemon = True
 t.start()
 
@@ -278,6 +263,7 @@ while True:
         app = q.get()
         new_page = apps_to_page_mapping.get(app)
         #TODO add an optional catchall page for apps not on any list
+        #TODO pattern matching for apps
         #TODO add an action to set/toggle if app focus jumps to page
         print('APP', app, 'PAGE', new_page)
         if new_page is not None and new_page != current_page:
