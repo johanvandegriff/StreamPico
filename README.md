@@ -5,6 +5,7 @@ Use your Raspberry Pi Pico RGB Keypad to control OBS (or anything!) over bluetoo
 
 https://wiki.archlinux.org/title/Bluetooth#Bluetooth_serial
 
+rfkill unblock bluetooth
 yay bluez-utils-compat
 sudo systemctl restart bluetooth
 bluetoothctl
