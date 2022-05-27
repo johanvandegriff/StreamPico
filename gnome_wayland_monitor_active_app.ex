@@ -1,9 +1,15 @@
-defmodule MonitorActiveApp do
-  def _dbus_monitor(caller) do
-    port = Port.open({:spawn, "dbus-monitor"}, [:binary, :exit_status])
-    _dbus_recv_loop(caller, port)
+#TODO docs
+defmodule PortLineByLine do
+  def open(caller, command) do
+    spawn(fn -> _monitor(caller, command) end)
   end
-  def _dbus_recv_loop(caller, port) do
+  def _monitor(caller, command) do
+    port = Port.open({:spawn, command}, [:binary, :exit_status, :in])
+#TODO doesn't kill the shell command when Ctrl-C exits program
+#    System.at_exit(fn(_) -> kill_port(port) end) #doesn't work
+    _monitor_loop(caller, port, command)
+  end
+  def _monitor_loop(caller, port, command) do
     receive do
       {^port, {:data, chunk}} ->
         if String.last(chunk) !== "\n", do: raise "didn't end with newline"
@@ -11,17 +17,27 @@ defmodule MonitorActiveApp do
         |> Enum.each(fn(line) -> send(caller, line) end)
       {^port, {:exit_status, _exit_status}} ->
         #IO.puts "port exited with #{_exit_status}, restarting it"
-        _dbus_monitor(caller) #restart the port
+        _monitor(caller, command) #restart the port
       msg ->
         IO.inspect msg
         raise "unexpected message"
     end
-    _dbus_recv_loop(caller, port)
+    _monitor_loop(caller, port, command)
   end
 
-  def monitor(caller) do
+  def kill_port(port) do
+    {:os_pid, pid} = :erlang.port_info(port, :os_pid)
+    :os.cmd('kill -9 #{pid}')
+  end
+end
+
+defmodule MonitorActiveApp do
+  def start(caller) do
+    spawn(fn -> _monitor(caller) end)
+  end
+  def _monitor(caller) do
     me = self()
-    spawn(fn -> MonitorActiveApp._dbus_monitor(me) end)
+    PortLineByLine.open(me, "dbus-monitor")
     _monitor_recv_loop(caller)
   end
   def _monitor_recv_loop(caller) do
@@ -57,8 +73,7 @@ defmodule MonitorActiveApp do
   end
 end
 
-me = self()
-spawn(fn -> MonitorActiveApp.monitor(me) end)
+MonitorActiveApp.start(self())
 MonitorActiveApp.recv_puts_forever()
 
 
