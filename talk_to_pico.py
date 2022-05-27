@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 import subprocess
 import serial
 import time
@@ -8,14 +9,16 @@ from threading import Thread
 from gnome_wayland_monitor_active_app import monitor_active_app
 import json
 
-start_page = '1'
-current_page = start_page
-OBS_PASSWORD = '1234' #TODO env var or config value
 SERIAL_INTERFACE = '/dev/rfcomm0'
 BAUD_RATE = 115200 #9600
 
-with open('config.json', 'r') as f:
-    pages = json.load(f)
+with open(os.path.expanduser('~/.config/StreamPico.json'), 'r') as f:
+    config = json.load(f)
+    constants = config['constants']
+    switch_on_active_app = config.get('switch_on_active_app') == True
+    pages = config['pages']
+    START_PAGE = config['start_page']
+    current_page = START_PAGE
 
 apps_to_page_mapping = {}
 for page, v in pages.items():
@@ -28,9 +31,10 @@ for page, v in pages.items():
 #new thread to listen to gnome events and find when the active window changes
 #so that the keypad can change context based on the active window
 q = Queue()
-t = Thread(target=monitor_active_app, args=[q])
-t.daemon = True
-t.start()
+if switch_on_active_app:
+    t = Thread(target=monitor_active_app, args=[q])
+    t.daemon = True
+    t.start()
 
 
 
@@ -109,8 +113,10 @@ while True:
             time.sleep(0.05)
             continue
 
-        if line[0] == '@':
-            pln("#,"+start_page)
+        if line[0] == '.':
+            pln('.')
+        elif line[0] == '@':
+            pln("#,"+START_PAGE)
         elif line[0] == '?':
             current_page = line.split(',')[1]
             activate_page()
@@ -124,7 +130,16 @@ while True:
                         pln('#'+',' + ','.join(action['parameters']))
                     elif action['type'] == 'command':
                         print('command', action['parameters'])
-                        output = subprocess.Popen(action['parameters'], stdout=subprocess.PIPE ).communicate()[0]
+                        parameters = []
+                        for param in action['parameters']:
+                            if type(param) == str:
+                                parameters.append(param)
+                            elif type(param) == dict:
+                                constant = param['constant']
+                                if not constant in constants:
+                                    raise ValueError(f"constant {constant} not defined")
+                                parameters.append(constants[constant])
+                        output = subprocess.Popen(parameters, stdout=subprocess.PIPE ).communicate()[0]
                         print('output', output)
                         pages[current_page]['keys'][key]['action']['last_output'] = output.decode('utf-8').strip()
                         activate_page() #TODO dont update the whole page

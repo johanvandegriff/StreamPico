@@ -1,0 +1,293 @@
+{
+    "start_page": "general",
+    "constants": {
+        "OBS_PASSWORD": "redacted"
+    },
+    "switch_on_active_app": true,
+    "pages": {
+        "general": {
+            "apps": [
+                "org.wezfurlong.wezterm.desktop",
+                "librewolf.desktop"
+            ],
+            "keys": {
+                "0": {
+                    "colors": {
+                        "None": "RGB,128,128,0",
+                        "lights off! (toggled)": "RGB,128,0,0",
+                        "lights on! (toggled)": "RGB,255,255,255"
+                    },
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "/home/user/nextcloud/bin/lights-toggle"
+                        ]
+                    }
+                },
+                "1": {
+                    "colors": {
+                        "None": "RGB,128,128,0",
+                        "relay off! (toggled)": "RGB,128,0,0",
+                        "relay on! (toggled)": "RGB,255,255,255"
+                    },
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "/home/user/nextcloud/bin/relay-toggle"
+                        ]
+                    }
+                },
+                "C": {
+                    "colors": "RGB,0,0,255",
+                    "action": {
+                        "type": "set_page",
+                        "parameters": [
+                            "None"
+                        ]
+                    }
+                },
+                "F": {
+                    "colors": "RGB,0,255,0",
+                    "action": {
+                        "type": "set_page",
+                        "parameters": [
+                            "obs"
+                        ]
+                    }
+                }
+            },
+            "quit": "E"
+        },
+        "obs": {
+            "apps": [
+                "org.kde.kate.desktop",
+                "org.kde.dolphin.desktop",
+                "com.obsproject.Studio.desktop"
+            ],
+            "color": "RGB,255,0,255",
+            "keys": {
+                "0": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "cam+chat"
+                        ]
+                    }
+                },
+                "1": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "screen+cam+chat"
+                        ]
+                    }
+                },
+                "2": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "1080+cam+chat+vmpk"
+                        ]
+                    }
+                },
+                "3": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "split screen"
+                        ]
+                    }
+                },
+                "4": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "be right back"
+                        ]
+                    }
+                },
+                "5": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "stream ending"
+                        ]
+                    }
+                },
+                "6": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "vine"
+                        ]
+                    }
+                },
+                "7": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "airhorn"
+                        ]
+                    }
+                },
+                "8": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "sir vander"
+                        ]
+                    }
+                },
+                "9": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "scene",
+                            "switch",
+                            "sir vander cam"
+                        ]
+                    }
+                },
+                "A": {
+                    "colors": "RGB,0,0,0"
+                },
+                "B": {
+                    "colors": "RGB,0,0,0"
+                },
+                "D": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "source",
+                            "toggle-mute",
+                            "komplete desktop"
+                        ]
+                    }
+                },
+                "E": {
+                    "action": {
+                        "type": "command",
+                        "parameters": [
+                            "obs-cli",
+                            "--password",
+                            {
+                                "constant": "OBS_PASSWORD"
+                            },
+                            "source",
+                            "toggle-mute",
+                            "komplete mic"
+                        ]
+                    }
+                },
+                "C": {
+                    "colors": "RGB,0,0,255",
+                    "action": {
+                        "type": "set_page",
+                        "parameters": [
+                            "general"
+                        ]
+                    }
+                },
+                "F": {
+                    "colors": "RGB,0,255,0",
+                    "action": {
+                        "type": "set_page",
+                        "parameters": [
+                            "test"
+                        ]
+                    }
+                }
+            }
+        },
+        "test": {
+            "color": "RGB,255,255,255",
+            "keys": {
+                "C": {
+                    "colors": "RGB,0,0,255",
+                    "action": {
+                        "type": "set_page",
+                        "parameters": [
+                            "obs"
+                        ]
+                    }
+                },
+                "F": {
+                    "colors": "RGB,0,0,0"
+                }
+            }
+        }
+    }
+}

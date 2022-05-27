@@ -198,6 +198,7 @@ def goto_none_page():
     lines.append('@,RGB,0,0,0')
     lines.append('0,RGB,255,0,255')
     lines.append('F,RGB,255,255,0')
+    pln(".")
 
 goto_none_page()
 
@@ -239,7 +240,9 @@ while True:
                 line.extend(chunk_string(more, 3))
                 print('CONVERTED', ','.join(line))
             key_num = line.pop(0)
-            if key_num == '?':
+            if key_num == '.':
+                pass
+            elif key_num == '?':
                 pln(f'?,{current_page}')
             elif key_num == '#':
                 current_page = line.pop(0)
@@ -274,6 +277,7 @@ while True:
                     print("playing!")
                     audio.play(decoder)
                 if h == 'F':
+                    goto_none_page()
                     pln('@')
             if h == quit_key:
                 goto_none_page()
