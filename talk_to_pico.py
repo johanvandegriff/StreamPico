@@ -1,16 +1,13 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 import os
 import subprocess
-import serial
+import bluetooth
 import time
 import traceback
 from queue import Queue
 from threading import Thread
 from gnome_wayland_monitor_active_app import monitor_active_app
 import json
-
-SERIAL_INTERFACE = '/dev/rfcomm0'
-BAUD_RATE = 115200 #9600
 
 with open(os.path.expanduser('~/.config/StreamPico.json'), 'r') as f:
     config = json.load(f)
@@ -37,30 +34,35 @@ if switch_on_active_app:
     t.start()
 
 
+def find_device_by_name(name):
+  print(f'searching for bluetooth device "{name}"...')
+  for addr in bluetooth.discover_devices():
+    print(f'found "{addr}", checking name...')
+    if name == bluetooth.lookup_name(addr):
+      print('name matches!')
+      return addr
+  print('no matches found')
+  return None
 
 
-
-ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
-
-"""
-try:
-    ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
-except serial.serialutil.SerialException:
-    output = subprocess.Popen(['sudo', 'rfcomm', 'bind', '0', '98:D3:31:FD:5D:34'], stdout=subprocess.PIPE ).communicate()[0]
-    print('output:', output)
-    #os.system('sudo rfcomm bind 0 98:D3:31:FD:5D:34')
-    time.sleep(2) #minimum 0.2
-    #time.sleep(0.5) #minimum 0.2
-    ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
-"""
-#"""
+if 'bluetooth_addr' in config:
+  BLUETOOTH_ADDR = config['bluetooth_addr']
+else:
+  BLUETOOTH_ADDR = find_device_by_name(config['bluetooth_name'])
 
 def pln(s):
     print('SEND', s)
-    ser.write(bytes(f"{s}\r\n", 'utf-8'))
+    sock.send(bytes(f'{s}\r\n', 'utf-8'))
 
+RECV_DATA = b''
 def gln():
-    line = ser.readline().decode('utf-8').strip()
+    global RECV_DATA
+    while b'\r\n' not in RECV_DATA:
+      RECV_DATA += sock.recv(1024)
+    lines = RECV_DATA.split(b'\r\n')
+    line = lines[0].decode('utf-8')
+    lines = lines[1:] #delete the 1st
+    RECV_DATA = b'\r\n'.join(lines)
     print('RECEIVE', line)
     return line
 
@@ -88,7 +90,7 @@ def activate_page():
         pln('Q,'+page['quit'])
     else:
         pln('Q,None')
-    
+
 
 send_init = True
 while True:
@@ -104,14 +106,12 @@ while True:
             activate_page()
     try:
         if send_init:
+            sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+            sock.connect((BLUETOOTH_ADDR, 1))
             pln("?")
             send_init = False
 
-        if ser.inWaiting() > 0:
-            line = gln()
-        else:
-            time.sleep(0.05)
-            continue
+        line = gln()
 
         if line[0] == '.':
             pln('.')
@@ -145,9 +145,8 @@ while True:
                         activate_page() #TODO dont update the whole page
                     else:
                         raise Exception('unsupported action type ' + action['type'])
-    except (serial.serialutil.SerialException, OSError) as e:
+    except bluetooth.btcommon.BluetoothError as e:
         print(traceback.format_exc())
-        ser = serial.Serial(SERIAL_INTERFACE, BAUD_RATE)
         send_init = True
 
 
