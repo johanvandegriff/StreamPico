@@ -1,3 +1,4 @@
 appdirs
 pygetwindow
+obs-websocket-py
 git+https://github.com/pybluez/pybluez

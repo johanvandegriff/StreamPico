@@ -36,3 +36,16 @@ python talk_to_pico.py
 ```
 
 On Windows, if you don't have Git Bash, you can use cmd, and instead of `source .venv/*/activate`, you can do: `.\.venv\Scripts\activate`
+
+## OBS Setup (Optional)
+ - Install [OBS Studio](https://obsproject.com/).
+ - Install the [obs-websocket](https://obsproject.com/forum/resources/obs-websocket-remote-control-obs-studio-from-websockets.466/) plugin. Make sure to get the 4.9.1-compat version.
+ - Open OBS and configure the websocket password.
+ - If on Linux, edit `~/.config/StreamPico/config.json`
+ - If on Windows, open File Explorer and paste `%appdata%\StreamPico` into the address bar, then edit `config.json` in that folder.
+ - Enter a new line somewhere inside the main curly braces: `obs_websocket_password: "your password here",` and save the file.
+ - StreamPico will now be able to talk to OBS through the plugin. If you want to control an OBS instance that is on another computer, you can also change the IP address and port by adding the following lines in the config file:
+```json
+obs_websocket_ip: "192.168.1.123",
+obs_websocket_port: "4567",
+```

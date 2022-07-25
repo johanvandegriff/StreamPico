@@ -1,11 +1,15 @@
 {
     "bluetooth_name": "HC-06",
     "bluetooth_addr": "00:00:00:00:00:00",
-    "start_page": "general",
+    "obs_websocket_ip": "localhost",
+    "obs_websocket_port": "4444",
+    "obs_websocket_password": "redacted",
     "constants": {
-        "OBS_PASSWORD": "redacted"
+        "MIC": "komplete mic",
+        "DESKTOP": "komplete desktop"
     },
     "switch_on_active_app": true,
+    "start_page": "general",
     "pages": {
         "general": {
             "apps": [
@@ -36,6 +40,32 @@
                         "type": "command",
                         "parameters": [
                             "/home/user/nextcloud/bin/relay-toggle"
+                        ]
+                    }
+                },
+                "2": {
+                    "colors": {
+                        "None": "RGB,255,0,255",
+                        "False": "RGB,255,255,255",
+                        "True": "RGB,255,0,0"
+                    },
+                    "action": {
+                        "type": "obs_websocket",
+                        "parameters": [
+                            [
+                                "ToggleMute",
+                                "",
+                                {
+                                    "constant": "MIC"
+                                }
+                            ],
+                            [
+                                "GetMute",
+                                "getMuted",
+                                {
+                                    "constant": "MIC"
+                                }
+                            ]
                         ]
                     }
                 },
@@ -70,13 +100,8 @@
             "keys": {
                 "0": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "cam+chat"
@@ -85,13 +110,8 @@
                 },
                 "1": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "screen+cam+chat"
@@ -100,13 +120,8 @@
                 },
                 "2": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "1080+cam+chat+vmpk"
@@ -115,13 +130,8 @@
                 },
                 "3": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "split screen"
@@ -130,13 +140,8 @@
                 },
                 "4": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "be right back"
@@ -145,13 +150,8 @@
                 },
                 "5": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "stream ending"
@@ -160,13 +160,8 @@
                 },
                 "6": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "vine"
@@ -175,13 +170,8 @@
                 },
                 "7": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "airhorn"
@@ -190,13 +180,8 @@
                 },
                 "8": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "sir vander"
@@ -205,13 +190,8 @@
                 },
                 "9": {
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "scene",
                             "switch",
                             "sir vander cam"
@@ -219,38 +199,65 @@
                     }
                 },
                 "A": {
-                    "colors": "RGB,0,0,0"
-                },
-                "B": {
-                    "colors": "RGB,0,0,0"
-                },
-                "D": {
+                    "colors": {
+                        "None": "RGB,255,0,0",
+                        "False": "RGB,255,255,255",
+                        "True": "RGB,255,0,0"
+                    },
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "source",
                             "toggle-mute",
-                            "komplete desktop"
+                            "crap mic"
+                        ]
+                    }
+                },
+                "B": {
+                    "colors": [
+                        "RGB,255,0,128",
+                        "RGB,128,0,255"
+                    ],
+                    "action": {
+                        "type": "obs_websocket",
+                        "parameters": [
+                            [
+                                "ToggleStudioMode"
+                            ]
+                        ]
+                    }
+                },
+                "D": {
+                    "colors": {
+                        "None": "RGB,255,0,255",
+                        "False": "RGB,255,255,255",
+                        "True": "RGB,255,0,0"
+                    },
+                    "action": {
+                        "type": "obs",
+                        "parameters": [
+                            "source",
+                            "toggle-mute",
+                            {
+                                "constant": "DESKTOP"
+                            }
                         ]
                     }
                 },
                 "E": {
+                    "colors": {
+                        "None": "RGB,255,0,255",
+                        "False": "RGB,255,255,255",
+                        "True": "RGB,255,0,0"
+                    },
                     "action": {
-                        "type": "command",
+                        "type": "obs",
                         "parameters": [
-                            "obs-cli",
-                            "--password",
-                            {
-                                "constant": "OBS_PASSWORD"
-                            },
                             "source",
                             "toggle-mute",
-                            "komplete mic"
+                            {
+                                "constant": "MIC"
+                            }
                         ]
                     }
                 },
