@@ -1,0 +1,3 @@
+appdirs
+pygetwindow
+git+https://github.com/pybluez/pybluez
